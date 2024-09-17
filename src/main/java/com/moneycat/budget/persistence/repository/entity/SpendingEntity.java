@@ -18,6 +18,7 @@ import java.time.LocalDate;
 public class SpendingEntity  extends BaseEntity {
 
     @Id
+    @Column(name = "id", nullable = false)
     private Long id;
 
     @Column(name = "user_id", nullable = false)
@@ -26,13 +27,13 @@ public class SpendingEntity  extends BaseEntity {
     @Column(name = "category_id", nullable = false)
     private Long categoryId;
 
-    @Column(nullable = false)
+    @Column(name = "amount", nullable = false)
     private BigDecimal amount;
 
-    @Column(nullable = false)
+    @Column(name = "date", nullable = false)
     private LocalDate date;
 
-    @Column(nullable = false)
+    @Column(name = "memo", nullable = false)
     private String memo;
 
     @Column(name = "is_excluded", nullable = false)

@@ -18,6 +18,7 @@ import java.time.LocalDate;
 public class BudgetEntity  extends BaseEntity {
 
     @Id
+    @Column(name = "id", nullable = false)
     private Long id;
 
     @Column(name = "user_id", nullable = false)
