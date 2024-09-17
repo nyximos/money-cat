@@ -11,7 +11,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @Configuration
 @EnableTransactionManagement
-@EnableJpaRepositories(basePackages = "com.gold.resource.persistence.repository")
+@EnableJpaRepositories(basePackages = "com.moneycat.budget.persistence.repository")
 public class QueryDslConfig {
 
     @PersistenceContext
