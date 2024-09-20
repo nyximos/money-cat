@@ -1,6 +1,8 @@
 package com.moneycat.budget.controller.api;
 
-import com.moneycat.budget.controller.model.SignUpRequest;
+import com.moneycat.budget.controller.model.request.LoginRequest;
+import com.moneycat.budget.controller.model.request.SignUpRequest;
+import com.moneycat.budget.controller.model.response.TokenResponse;
 import com.moneycat.budget.service.UserService;
 import com.moneycat.core.wrapper.ResultResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -23,9 +25,15 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping
-    @Operation(summary = "회원가입", description = "회원가입을 합니다..")
+    @Operation(summary = "회원가입", description = "회원가입을 합니다.")
     public ResultResponse<Void> signUp(@Valid @RequestBody SignUpRequest signUpRequest) {
         userService.signUp(signUpRequest);
         return new ResultResponse<>();
+    }
+
+    @PostMapping("/login")
+    @Operation(summary = "로그인", description = "로그인 후 토큰을 발급받습니다.")
+    public ResultResponse<TokenResponse> signIn(@Valid @RequestBody LoginRequest loginRequest) {
+        return new ResultResponse(userService.signIn(loginRequest));
     }
 }
