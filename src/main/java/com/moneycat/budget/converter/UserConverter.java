@@ -1,4 +1,4 @@
-package com.moneycat.budget;
+package com.moneycat.budget.converter;
 
 import com.moneycat.budget.controller.model.request.SignUpRequest;
 import com.moneycat.budget.persistence.repository.entity.UserEntity;

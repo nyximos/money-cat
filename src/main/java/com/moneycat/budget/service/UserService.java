@@ -1,6 +1,6 @@
 package com.moneycat.budget.service;
 
-import com.moneycat.budget.UserConverter;
+import com.moneycat.budget.converter.UserConverter;
 import com.moneycat.budget.controller.model.request.LoginRequest;
 import com.moneycat.budget.controller.model.request.SignUpRequest;
 import com.moneycat.budget.controller.model.response.TokenResponse;
