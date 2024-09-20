@@ -1,6 +1,6 @@
 package com.moneycat.budget.controller.api;
 
-import com.moneycat.budget.controller.model.SignUpRequest;
+import com.moneycat.budget.controller.model.request.SignUpRequest;
 import com.moneycat.budget.service.UserService;
 import com.moneycat.core.wrapper.ResultResponse;
 import io.swagger.v3.oas.annotations.Operation;

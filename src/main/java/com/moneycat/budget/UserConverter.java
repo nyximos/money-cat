@@ -1,6 +1,6 @@
 package com.moneycat.budget;
 
-import com.moneycat.budget.controller.model.SignUpRequest;
+import com.moneycat.budget.controller.model.request.SignUpRequest;
 import com.moneycat.budget.persistence.repository.entity.UserEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

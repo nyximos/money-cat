@@ -1,7 +1,7 @@
 package com.moneycat.budget.service;
 
 import com.moneycat.budget.UserConverter;
-import com.moneycat.budget.controller.model.SignUpRequest;
+import com.moneycat.budget.controller.model.request.SignUpRequest;
 import com.moneycat.budget.persistence.repository.UserRepository;
 import com.moneycat.budget.persistence.repository.entity.UserEntity;
 import com.moneycat.budget.service.delegator.validator.DuplicateEmailValidator;

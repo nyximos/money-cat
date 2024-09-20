@@ -1,4 +1,4 @@
-package com.moneycat.budget.controller.model;
+package com.moneycat.budget.controller.model.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
