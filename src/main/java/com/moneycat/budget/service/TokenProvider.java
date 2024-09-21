@@ -45,8 +45,8 @@ public class TokenProvider {
         return Long.valueOf(extractClaim(token, Claims::getSubject));
     }
 
-    public String extractUsername(String token) {
-        return extractClaim(token, claims -> (String) claims.get("username"));
+    public String extractEmail(String token) {
+        return extractClaim(token, claims -> (String) claims.get("email"));
     }
 
     private Date extractExpiration(String token) {
