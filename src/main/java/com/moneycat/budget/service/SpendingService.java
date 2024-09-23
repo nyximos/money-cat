@@ -1,10 +1,12 @@
 package com.moneycat.budget.service;
 
 import com.moneycat.budget.controller.model.request.SpendingRequest;
+import com.moneycat.budget.controller.model.response.SpendingResponse;
 import com.moneycat.budget.converter.SpendingConverter;
 import com.moneycat.budget.persistence.repository.CategoryRepository;
 import com.moneycat.budget.persistence.repository.SpendingRepository;
 import com.moneycat.budget.persistence.repository.UserRepository;
+import com.moneycat.budget.persistence.repository.entity.CategoryEntity;
 import com.moneycat.budget.persistence.repository.entity.SpendingEntity;
 import com.moneycat.budget.service.delegator.validator.AccessPermissionValidator;
 import com.moneycat.core.exception.CategoryNotFoundException;
@@ -43,5 +45,13 @@ public class SpendingService {
         SpendingEntity spending = spendingRepository.findById(spendingId).orElseThrow(SpendingNotFoundException::new);
         accessPermissionValidator.validate(spending.getUserId(), userId);
         spendingRepository.delete(spending);
+    }
+
+    @Transactional(readOnly = true)
+    public SpendingResponse getSpending(Long userId, Long spendingId) {
+        SpendingEntity spending = spendingRepository.findById(spendingId).orElseThrow(SpendingNotFoundException::new);
+        accessPermissionValidator.validate(spending.getUserId(), userId);
+        CategoryEntity category = categoryRepository.findById(spending.getCategoryId()).orElseThrow(CategoryNotFoundException::new);
+        return spendingConverter.convert(spending, category.getName());
     }
 }
