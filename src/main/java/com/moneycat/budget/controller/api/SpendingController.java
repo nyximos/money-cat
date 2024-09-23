@@ -27,4 +27,13 @@ public class SpendingController {
         spendingService.addSpending(tokenUser.id(), spendingRequest);
         return new ResultResponse<>();
     }
+
+    @PutMapping("/{id}")
+    @Operation(summary = "지출 수정", description = "지출 데이터를 수정합니다.")
+    public ResultResponse<Void> updateSpending(@RequestAttribute(value = TOKEN_USER) TokenUser tokenUser,
+                                               @PathVariable(value = "id") Long spendingId,
+                                               @Valid @RequestBody SpendingRequest spendingRequest) {
+        spendingService.updateSpending(spendingId, tokenUser.id(), spendingRequest);
+        return new ResultResponse<>();
+    }
 }
