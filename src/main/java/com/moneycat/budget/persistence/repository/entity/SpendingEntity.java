@@ -1,5 +1,6 @@
 package com.moneycat.budget.persistence.repository.entity;
 
+import com.moneycat.budget.controller.model.request.SpendingRequest;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -37,4 +38,11 @@ public class SpendingEntity  extends BaseEntity {
     @Column(name = "is_excluded", nullable = false)
     private boolean isExcluded;
 
+    public void update(SpendingRequest spendingRequest) {
+        this.categoryId = spendingRequest.categoryId();
+        this.amount = spendingRequest.amount();
+        this.date = spendingRequest.date();
+        this.memo = spendingRequest.memo();
+        this.isExcluded = spendingRequest.isExcluded();
+    }
 }

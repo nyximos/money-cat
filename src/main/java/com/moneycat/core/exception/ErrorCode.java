@@ -14,6 +14,8 @@ public enum ErrorCode {
     INVALID_TOKEN("유효하지 않은 토큰입니다."),
     INVALID_REFRESH_TOKEN("유효하지 않은 리프레시 토큰입니다."),
     CATEGORY_NOT_FOUND_EXCEPTION("카테고리를 찾을 수 없습니다."),
+    SPENDING_NOT_FOUND_EXCEPTION("지출 데이터를 찾을 수 없습니다."),
+    UNAUTHORIZED_ACCESS_EXCEPTION("접근 권한이 없습니다."),
     ;
 
     private String defaultMessage;
