@@ -39,8 +39,8 @@ public class BudgetService {
 
     @Transactional(readOnly = true)
     public List<BudgetRecommendationResponse> recommendBudget(BudgetRecommendationRequest recommendationRequest) {
-        LocalDate startDate = recommendationRequest.month().withDayOfMonth(1);
-        LocalDate endDate = recommendationRequest.month().plusMonths(1).withDayOfMonth(1).minusDays(1);
+        LocalDate startDate = recommendationRequest.startDate().withDayOfMonth(1);
+        LocalDate endDate = recommendationRequest.startDate().plusMonths(1).withDayOfMonth(1).minusDays(1);
 
         List<BudgetCategoryPercentageDto> userBudgets = budgetRepository.findUserBudgetByMonth(startDate, endDate);
         Map<Long, BigDecimal> categoryPercentageMap = calculateAverageCategoryPercentage(userBudgets);
