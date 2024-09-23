@@ -9,7 +9,6 @@ import com.moneycat.budget.persistence.repository.entity.SpendingEntity;
 import com.moneycat.budget.service.delegator.validator.AccessPermissionValidator;
 import com.moneycat.core.exception.CategoryNotFoundException;
 import com.moneycat.core.exception.SpendingNotFoundException;
-import com.moneycat.core.exception.UnauthorizedAccessException;
 import com.moneycat.core.exception.UserNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -37,5 +36,12 @@ public class SpendingService {
         SpendingEntity spending = spendingRepository.findById(spendingId).orElseThrow(SpendingNotFoundException::new);
         accessPermissionValidator.validate(spending.getUserId(), userId);
         spending.update(spendingRequest);
+    }
+
+    @Transactional
+    public void removeSpending(Long userId, Long spendingId) {
+        SpendingEntity spending = spendingRepository.findById(spendingId).orElseThrow(SpendingNotFoundException::new);
+        accessPermissionValidator.validate(spending.getUserId(), userId);
+        spendingRepository.delete(spending);
     }
 }

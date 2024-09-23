@@ -36,4 +36,13 @@ public class SpendingController {
         spendingService.updateSpending(spendingId, tokenUser.id(), spendingRequest);
         return new ResultResponse<>();
     }
+
+    @DeleteMapping("/{id}")
+    @Operation(summary = "지출 삭제", description = "지출 데이터를 삭제합니다.")
+    public ResultResponse<Void> removeSpending(@RequestAttribute(value = TOKEN_USER) TokenUser tokenUser,
+                                               @PathVariable(value = "id") Long spendingId) {
+        spendingService.removeSpending(tokenUser.id(), spendingId);
+        return new ResultResponse<>();
+    }
+
 }
