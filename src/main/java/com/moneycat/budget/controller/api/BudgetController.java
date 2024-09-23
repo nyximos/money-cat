@@ -3,14 +3,14 @@ package com.moneycat.budget.controller.api;
 import com.moneycat.budget.controller.model.request.BudgetRequest;
 import com.moneycat.budget.service.BudgetService;
 import com.moneycat.core.wrapper.ResultResponse;
+import com.moneycat.core.wrapper.TokenUser;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import static com.moneycat.core.constant.MoneyCatConstants.TOKEN_USER;
 
 @RestController
 @RequiredArgsConstructor
@@ -22,8 +22,9 @@ public class BudgetController {
 
     @PostMapping
     @Operation(summary = "예산 설정", description = "예산을 설정합니다.")
-    public ResultResponse<Void> createBudget(@Valid @RequestBody BudgetRequest budgetRequest) {
-        budgetService.createBudget(budgetRequest);
+    public ResultResponse<Void> createBudget(@RequestAttribute(value = TOKEN_USER) TokenUser tokenUser,
+                                             @Valid @RequestBody BudgetRequest budgetRequest) {
+        budgetService.createBudget(tokenUser.id(), budgetRequest);
         return new ResultResponse<>();
     }
 
