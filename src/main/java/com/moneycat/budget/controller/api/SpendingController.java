@@ -1,7 +1,9 @@
 package com.moneycat.budget.controller.api;
 
 import com.moneycat.budget.controller.model.request.SpendingRequest;
+import com.moneycat.budget.controller.model.request.SpendingSearchRequest;
 import com.moneycat.budget.controller.model.response.SpendingDetailResponse;
+import com.moneycat.budget.controller.model.response.SpendingResponse;
 import com.moneycat.budget.service.SpendingService;
 import com.moneycat.core.wrapper.ResultResponse;
 import com.moneycat.core.wrapper.TokenUser;
@@ -53,6 +55,11 @@ public class SpendingController {
         return new ResultResponse<>(spendingService.getSpending(tokenUser.id(), spendingId));
     }
 
-
+    @GetMapping
+    @Operation(summary = "지출 목록 조회", description = "지출 목록을 조회합니다.")
+    public ResultResponse<SpendingResponse> getAllSpending(@RequestAttribute(value = TOKEN_USER) TokenUser tokenUser,
+                                                           @Valid @RequestBody SpendingSearchRequest searchRequest) {
+        return new ResultResponse<>(spendingService.getAllSpending(tokenUser.id(), searchRequest));
+    }
 
 }
