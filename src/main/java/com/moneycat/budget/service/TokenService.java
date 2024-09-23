@@ -5,13 +5,19 @@ import com.moneycat.budget.converter.RefreshTokenConverter;
 import com.moneycat.budget.persistence.repository.RefreshTokenRepository;
 import com.moneycat.budget.service.delegator.validator.RefreshTokenValidator;
 import com.moneycat.budget.service.delegator.validator.TokenValidator;
+import com.moneycat.core.exception.ErrorCode;
+import com.moneycat.core.exception.MoneyCatException;
+import com.moneycat.core.wrapper.TokenUser;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class TokenService {
@@ -58,5 +64,16 @@ public class TokenService {
         tokenInfo.put("id", id);
         tokenInfo.put("email", email);
         return tokenInfo;
+    }
+
+    public TokenUser validateToken(String accessToken) {
+        try {
+            accessToken = tokenProvider.removePrefix(accessToken);
+            tokenProvider.validateToken(accessToken);
+            return tokenProvider.extractTokenUser(accessToken);
+        } catch (MoneyCatException e) {
+            log.error("토큰 검증 실패: " + e.getMessage());
+            throw new MoneyCatException(HttpStatus.UNAUTHORIZED, ErrorCode.INVALID_TOKEN);
+        }
     }
 }

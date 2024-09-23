@@ -2,6 +2,7 @@ package com.moneycat.budget.service;
 
 import com.moneycat.core.exception.InvalidTokenException;
 import com.moneycat.core.util.TokenUtils;
+import com.moneycat.core.wrapper.TokenUser;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import org.apache.commons.lang3.StringUtils;
@@ -47,6 +48,10 @@ public class TokenProvider {
 
     public String extractEmail(String token) {
         return extractClaim(token, claims -> (String) claims.get("email"));
+    }
+
+    public TokenUser extractTokenUser(String token) {
+        return new TokenUser(extractId(token), extractEmail(token));
     }
 
     private Date extractExpiration(String token) {

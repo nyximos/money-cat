@@ -21,8 +21,8 @@ public class BudgetService {
     private final CategoryRepository categoryRepository;
 
     @Transactional
-    public void createBudget(BudgetRequest budgetRequest) {
-        userRepository.findById(budgetRequest.userId()).orElseThrow(UserNotFoundException::new);
+    public void createBudget(Long userId, BudgetRequest budgetRequest) {
+        userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
         categoryRepository.findById(budgetRequest.categoryId()).orElseThrow(CategoryNotFoundException::new);
         budgetRepository.save(budgetConverter.convert(budgetRequest));
     }
