@@ -4,35 +4,19 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.util.List;
 
 public record SpendingResponse (
-        @Schema(description = "아이디")
-        Long id,
 
-        @Schema(description = "카테고리 아이디")
-        Long categoryId,
+        @Schema(description = "지출 총액")
+        BigDecimal totalAmount,
 
-        @Schema(description = "카테고리명")
-        String categoryName,
+        @Schema(description = "지출 목록")
+        List<SpendingDetailResponse> spendingList,
 
-        @Schema(description = "날짜")
-        LocalDate date,
+        @Schema(description = "시작일")
+        LocalDate startDate,
 
-        @Schema(description = "금액")
-        BigDecimal amount,
-
-        @Schema(description = "제외 여부")
-        boolean isExcluded,
-
-        @Schema(description = "메모")
-        String memo,
-
-        @Schema(description = "작성일")
-        LocalDateTime createdAt,
-
-        @Schema(description = "수정일")
-        LocalDateTime updatedAt
-) {
-
-}
+        @Schema(description = "종료일")
+        LocalDate endDate
+) {}

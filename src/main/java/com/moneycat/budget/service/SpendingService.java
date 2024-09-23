@@ -1,6 +1,8 @@
 package com.moneycat.budget.service;
 
 import com.moneycat.budget.controller.model.request.SpendingRequest;
+import com.moneycat.budget.controller.model.request.SpendingSearchRequest;
+import com.moneycat.budget.controller.model.response.SpendingDetailResponse;
 import com.moneycat.budget.controller.model.response.SpendingResponse;
 import com.moneycat.budget.converter.SpendingConverter;
 import com.moneycat.budget.persistence.repository.CategoryRepository;
@@ -15,6 +17,9 @@ import com.moneycat.core.exception.UserNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.math.BigDecimal;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -48,10 +53,16 @@ public class SpendingService {
     }
 
     @Transactional(readOnly = true)
-    public SpendingResponse getSpending(Long userId, Long spendingId) {
+    public SpendingDetailResponse getSpending(Long userId, Long spendingId) {
         SpendingEntity spending = spendingRepository.findById(spendingId).orElseThrow(SpendingNotFoundException::new);
         accessPermissionValidator.validate(spending.getUserId(), userId);
         CategoryEntity category = categoryRepository.findById(spending.getCategoryId()).orElseThrow(CategoryNotFoundException::new);
         return spendingConverter.convert(spending, category.getName());
+    }
+
+    public SpendingResponse getAllSpending(Long userId, SpendingSearchRequest searchRequest) {
+        List<SpendingDetailResponse> spendingList = spendingRepository.selectAllSpending(userId, searchRequest);
+        BigDecimal totalAmount = spendingList.stream().map(SpendingDetailResponse::amount).reduce(BigDecimal.ZERO, BigDecimal::add);
+        return new SpendingResponse(totalAmount, spendingList, searchRequest.startDate(), searchRequest.endDate());
     }
 }
