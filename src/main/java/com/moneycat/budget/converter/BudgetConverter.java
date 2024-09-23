@@ -9,5 +9,5 @@ import org.mapstruct.Mapping;
 public interface BudgetConverter {
 
     @Mapping(target = "id", ignore = true)
-    BudgetEntity convert(BudgetRequest budgetRequest);
+    BudgetEntity convert(Long userId, BudgetRequest budgetRequest);
 }
