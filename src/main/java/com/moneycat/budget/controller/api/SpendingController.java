@@ -1,7 +1,7 @@
 package com.moneycat.budget.controller.api;
 
 import com.moneycat.budget.controller.model.request.SpendingRequest;
-import com.moneycat.budget.controller.model.response.SpendingResponse;
+import com.moneycat.budget.controller.model.response.SpendingDetailResponse;
 import com.moneycat.budget.service.SpendingService;
 import com.moneycat.core.wrapper.ResultResponse;
 import com.moneycat.core.wrapper.TokenUser;
@@ -48,8 +48,8 @@ public class SpendingController {
 
     @GetMapping("/{id}")
     @Operation(summary = "지출 상세 조회", description = "지출 데이터를 조회합니다.")
-    public ResultResponse<SpendingResponse> getSpending(@RequestAttribute(value = TOKEN_USER) TokenUser tokenUser,
-                                                        @PathVariable(value = "id") Long spendingId) {
+    public ResultResponse<SpendingDetailResponse> getSpending(@RequestAttribute(value = TOKEN_USER) TokenUser tokenUser,
+                                                              @PathVariable(value = "id") Long spendingId) {
         return new ResultResponse<>(spendingService.getSpending(tokenUser.id(), spendingId));
     }
 

@@ -1,7 +1,7 @@
 package com.moneycat.budget.service;
 
 import com.moneycat.budget.controller.model.request.SpendingRequest;
-import com.moneycat.budget.controller.model.response.SpendingResponse;
+import com.moneycat.budget.controller.model.response.SpendingDetailResponse;
 import com.moneycat.budget.converter.SpendingConverter;
 import com.moneycat.budget.persistence.repository.CategoryRepository;
 import com.moneycat.budget.persistence.repository.SpendingRepository;
@@ -48,7 +48,7 @@ public class SpendingService {
     }
 
     @Transactional(readOnly = true)
-    public SpendingResponse getSpending(Long userId, Long spendingId) {
+    public SpendingDetailResponse getSpending(Long userId, Long spendingId) {
         SpendingEntity spending = spendingRepository.findById(spendingId).orElseThrow(SpendingNotFoundException::new);
         accessPermissionValidator.validate(spending.getUserId(), userId);
         CategoryEntity category = categoryRepository.findById(spending.getCategoryId()).orElseThrow(CategoryNotFoundException::new);
