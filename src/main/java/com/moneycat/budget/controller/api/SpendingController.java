@@ -58,7 +58,7 @@ public class SpendingController {
     @GetMapping
     @Operation(summary = "지출 목록 조회", description = "지출 목록을 조회합니다.")
     public ResultResponse<SpendingResponse> getAllSpending(@RequestAttribute(value = TOKEN_USER) TokenUser tokenUser,
-                                                           @Valid @RequestBody SpendingSearchRequest searchRequest) {
+                                                           @Valid @ModelAttribute SpendingSearchRequest searchRequest) {
         return new ResultResponse<>(spendingService.getAllSpending(tokenUser.id(), searchRequest));
     }
 
