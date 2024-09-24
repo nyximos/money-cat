@@ -62,7 +62,10 @@ public class SpendingService {
 
     public SpendingResponse getAllSpending(Long userId, SpendingSearchRequest searchRequest) {
         List<SpendingDetailResponse> spendingList = spendingRepository.selectAllSpending(userId, searchRequest);
-        BigDecimal totalAmount = spendingList.stream().map(SpendingDetailResponse::amount).reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal totalAmount = spendingList.stream()
+                .filter(o -> !o.isExcluded())
+                .map(SpendingDetailResponse::amount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
         return new SpendingResponse(totalAmount, spendingList, searchRequest.startDate(), searchRequest.endDate());
     }
 }

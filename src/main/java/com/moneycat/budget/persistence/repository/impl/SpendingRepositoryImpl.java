@@ -25,11 +25,6 @@ public class SpendingRepositoryImpl implements SpendingRepositoryCustom {
 
     @Override
     public List<SpendingDetailResponse> selectAllSpending(Long userId, SpendingSearchRequest searchRequest) {
-        BooleanBuilder whereBuilder = new BooleanBuilder();
-        if (searchRequest.isExclude()) {
-            spendingEntity.isExcluded.eq(searchRequest.isExclude());
-        }
-
         return queryFactory.select(Projections.constructor(
                         SpendingDetailResponse.class,
                         spendingEntity.id,
@@ -45,8 +40,7 @@ public class SpendingRepositoryImpl implements SpendingRepositoryCustom {
                 .from(spendingEntity)
                 .join(categoryEntity).on(spendingEntity.categoryId.eq(categoryEntity.id))
                 .where(spendingEntity.userId.eq(userId)
-                        .and(spendingEntity.date.between(searchRequest.startDate(), searchRequest.endDate()))
-                        .and(whereBuilder))
+                        .and(spendingEntity.date.between(searchRequest.startDate(), searchRequest.endDate())))
                 .orderBy(spendingEntity.date.desc())
                 .fetch();
     }
