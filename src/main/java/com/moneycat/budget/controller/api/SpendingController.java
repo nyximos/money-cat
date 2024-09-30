@@ -4,6 +4,7 @@ import com.moneycat.budget.controller.model.request.SpendingRequest;
 import com.moneycat.budget.controller.model.request.SpendingSearchRequest;
 import com.moneycat.budget.controller.model.response.SpendingDetailResponse;
 import com.moneycat.budget.controller.model.response.SpendingResponse;
+import com.moneycat.budget.controller.model.response.SummaryResponse;
 import com.moneycat.budget.service.SpendingService;
 import com.moneycat.core.wrapper.ResultResponse;
 import com.moneycat.core.wrapper.TokenUser;
@@ -12,6 +13,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
 
 import static com.moneycat.core.constant.MoneyCatConstants.TOKEN_USER;
 
@@ -61,5 +64,12 @@ public class SpendingController {
                                                            @Valid @ModelAttribute SpendingSearchRequest searchRequest) {
         return new ResultResponse<>(spendingService.getAllSpending(tokenUser.id(), searchRequest));
     }
+
+    @GetMapping("/summary/today")
+    @Operation(summary = "오늘 지출 안내", description = "오늘 지출한 내용을 총액과 카테고리 별 금액으로 알려줍니다.")
+    public ResultResponse<SummaryResponse> getTodaySummary(@RequestAttribute(value = TOKEN_USER) TokenUser tokenUser) {
+    return new ResultResponse<>(spendingService.getTodaySummary(tokenUser.id(), LocalDate.now()));
+    }
+
 
 }
