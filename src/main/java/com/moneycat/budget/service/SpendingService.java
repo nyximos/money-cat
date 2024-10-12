@@ -2,10 +2,7 @@ package com.moneycat.budget.service;
 
 import com.moneycat.budget.controller.model.request.SpendingRequest;
 import com.moneycat.budget.controller.model.request.SpendingSearchRequest;
-import com.moneycat.budget.controller.model.response.CategorySpending;
-import com.moneycat.budget.controller.model.response.SpendingDetailResponse;
-import com.moneycat.budget.controller.model.response.SpendingResponse;
-import com.moneycat.budget.controller.model.response.SummaryResponse;
+import com.moneycat.budget.controller.model.response.*;
 import com.moneycat.budget.converter.SpendingConverter;
 import com.moneycat.budget.persistence.repository.BudgetRepository;
 import com.moneycat.budget.persistence.repository.CategoryRepository;
@@ -28,6 +25,8 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import static com.moneycat.core.util.SpendingUtils.chooseRecommendationMessage;
 
 @Service
 @RequiredArgsConstructor
@@ -117,5 +116,46 @@ public class SpendingService {
         return new SummaryResponse(totalAmount, categoryStats);
     }
 
+    @Transactional(readOnly = true)
+    public RecommendationResponse getTodayRecommendation(Long id, LocalDate today, BigDecimal minimalAmount) {
+        int remainingDays = today.lengthOfMonth() - today.getDayOfMonth() + 1;
+        List<SpendingEntity> spendings = spendingRepository.selectMonthlySpendingsExcludingToday(id, today);
+        List<MonthlyBudgetDto> budgets = budgetRepository.selectMonthlyBudgets(id, today);
+        BigDecimal totalSpent = spendings.stream().map(SpendingEntity::getAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
+        Map<Long, BigDecimal> categorySpendingMap = spendings.stream()
+                .collect(Collectors.groupingBy(
+                        SpendingEntity::getCategoryId,
+                        Collectors.reducing(BigDecimal.ZERO, SpendingEntity::getAmount, BigDecimal::add)
+                ));
+
+        List<SpendingEntity> todaySpendings = spendingRepository.selectAllSpendingToday(id, today);
+        Map<Long, BigDecimal> todaySpendingMap = todaySpendings.stream()
+                .collect(Collectors.groupingBy(
+                        SpendingEntity::getCategoryId,
+                        Collectors.reducing(BigDecimal.ZERO, SpendingEntity::getAmount, BigDecimal::add)
+                ));
+
+        List<CategoryRecommendationResponse> categoryRecommendations = budgets.stream()
+                .map(budget -> {
+                    BigDecimal amountSpent = categorySpendingMap.getOrDefault(budget.getCategoryId(), BigDecimal.ZERO);
+                    BigDecimal remainingBudget = budget.getAmount().subtract(amountSpent).max(BigDecimal.ZERO);
+                    BigDecimal todaySpent = todaySpendingMap.getOrDefault(budget.getCategoryId(), BigDecimal.ZERO);
+                    BigDecimal dailyRemainingBudget = remainingBudget
+                            .divide(BigDecimal.valueOf(remainingDays), 0, RoundingMode.HALF_UP)
+                            .subtract(todaySpent)
+                            .max(minimalAmount);
+                    return new CategoryRecommendationResponse(budget.getCategoryId(), budget.getCategoryName(), dailyRemainingBudget);
+                })
+                .collect(Collectors.toList());
+
+        BigDecimal totalBudget = budgets.stream().map(MonthlyBudgetDto::getAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal totalAmount = categoryRecommendations.stream()
+                .map(CategoryRecommendationResponse::amount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add)
+                .divide(BigDecimal.TEN, 0, RoundingMode.HALF_UP)
+                .multiply(BigDecimal.TEN);
+        String message = chooseRecommendationMessage(totalSpent, totalBudget);
+        return new RecommendationResponse(totalAmount, categoryRecommendations, message);
+    }
 
 }
