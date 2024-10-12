@@ -57,4 +57,25 @@ public class SpendingRepositoryImpl implements SpendingRepositoryCustom {
                         .and(spendingEntity.isExcluded.isFalse()))
                 .fetch();
     }
+
+    @Override
+    public List<SpendingEntity> selectMonthlySpendingsExcludingToday(Long userId, LocalDate today) {
+        return queryFactory.selectFrom(spendingEntity)
+                .where(spendingEntity.userId.eq(userId)
+                        .and(spendingEntity.date.year().eq(today.getYear()))
+                        .and(spendingEntity.date.month().eq(today.getMonthValue()))
+                        .and(spendingEntity.date.ne(today))
+                        .and(spendingEntity.isExcluded.isFalse()))
+                .fetch();
+    }
+
+    @Override
+    public List<SpendingEntity> selectAllSpendingToday(Long userId, LocalDate today) {
+        return queryFactory.selectFrom(spendingEntity)
+                .where(spendingEntity.userId.eq(userId)
+                        .and(spendingEntity.date.eq(today))
+                        .and(spendingEntity.isExcluded.isFalse()))
+                .fetch();
+    }
+
 }

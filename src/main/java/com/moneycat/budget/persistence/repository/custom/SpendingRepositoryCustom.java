@@ -11,4 +11,8 @@ public interface SpendingRepositoryCustom {
     List<SpendingDetailResponse> selectAllSpending(Long userId, SpendingSearchRequest searchRequest);
 
     List<SpendingEntity> selectMonthlySpendings(Long userId, LocalDate today);
+
+    List<SpendingEntity> selectMonthlySpendingsExcludingToday(Long userId, LocalDate today);
+
+    List<SpendingEntity> selectAllSpendingToday(Long id, LocalDate today);
 }

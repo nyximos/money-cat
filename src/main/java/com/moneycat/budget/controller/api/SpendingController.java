@@ -2,6 +2,7 @@ package com.moneycat.budget.controller.api;
 
 import com.moneycat.budget.controller.model.request.SpendingRequest;
 import com.moneycat.budget.controller.model.request.SpendingSearchRequest;
+import com.moneycat.budget.controller.model.response.RecommendationResponse;
 import com.moneycat.budget.controller.model.response.SpendingDetailResponse;
 import com.moneycat.budget.controller.model.response.SpendingResponse;
 import com.moneycat.budget.controller.model.response.SummaryResponse;
@@ -14,6 +15,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 import static com.moneycat.core.constant.MoneyCatConstants.TOKEN_USER;
@@ -69,6 +71,13 @@ public class SpendingController {
     @Operation(summary = "오늘 지출 안내", description = "오늘 지출한 내용을 총액과 카테고리 별 금액으로 알려줍니다.")
     public ResultResponse<SummaryResponse> getTodaySummary(@RequestAttribute(value = TOKEN_USER) TokenUser tokenUser) {
     return new ResultResponse<>(spendingService.getTodaySummary(tokenUser.id(), LocalDate.now()));
+    }
+
+    @GetMapping("/")
+    @Operation(summary = "오늘 지출 추천", description = "설정한 월별 예산을 만족하기 위해 오늘 지출 가능한 금액을 총액과 카테고리 별 금액으로 제공합니다")
+    public ResultResponse<RecommendationResponse> getTodayRecommendation(@RequestAttribute(value = TOKEN_USER) TokenUser tokenUser,
+                                                                         @RequestParam BigDecimal minimalAmount) {
+        return new ResultResponse<>(spendingService.getTodayRecommendation(tokenUser.id(), LocalDate.now(), minimalAmount));
     }
 
 
