@@ -2,10 +2,7 @@ package com.moneycat.budget.controller.api;
 
 import com.moneycat.budget.controller.model.request.SpendingRequest;
 import com.moneycat.budget.controller.model.request.SpendingSearchRequest;
-import com.moneycat.budget.controller.model.response.RecommendationResponse;
-import com.moneycat.budget.controller.model.response.SpendingDetailResponse;
-import com.moneycat.budget.controller.model.response.SpendingResponse;
-import com.moneycat.budget.controller.model.response.SummaryResponse;
+import com.moneycat.budget.controller.model.response.*;
 import com.moneycat.budget.service.SpendingService;
 import com.moneycat.core.wrapper.ResultResponse;
 import com.moneycat.core.wrapper.TokenUser;
@@ -73,12 +70,17 @@ public class SpendingController {
     return new ResultResponse<>(spendingService.getTodaySummary(tokenUser.id(), LocalDate.now()));
     }
 
-    @GetMapping("/")
+    @GetMapping("/recommendation")
     @Operation(summary = "오늘 지출 추천", description = "설정한 월별 예산을 만족하기 위해 오늘 지출 가능한 금액을 총액과 카테고리 별 금액으로 제공합니다")
     public ResultResponse<RecommendationResponse> getTodayRecommendation(@RequestAttribute(value = TOKEN_USER) TokenUser tokenUser,
                                                                          @RequestParam BigDecimal minimalAmount) {
         return new ResultResponse<>(spendingService.getTodayRecommendation(tokenUser.id(), LocalDate.now(), minimalAmount));
     }
 
+    @GetMapping("/statistics")
+    @Operation(summary = "지출 통계", description = "지난달 대비, 지난 요일 대비, 다른 유저 대비 소비율을 조회합니다.")
+    public ResultResponse<StatisticsResponse> getStatistics(@RequestAttribute(value = TOKEN_USER) TokenUser tokenUser) {
+        return new ResultResponse<>(spendingService.getStatistics(tokenUser.id(), LocalDate.now()));
+    }
 
 }

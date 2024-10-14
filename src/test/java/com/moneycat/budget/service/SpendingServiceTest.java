@@ -1,6 +1,7 @@
 package com.moneycat.budget.service;
 
 import com.moneycat.budget.controller.model.response.CategorySpending;
+import com.moneycat.budget.controller.model.response.CategorySpendingRateResponse;
 import com.moneycat.budget.controller.model.response.RecommendationResponse;
 import com.moneycat.budget.controller.model.response.SummaryResponse;
 import com.moneycat.budget.persistence.repository.BudgetRepository;
@@ -62,7 +63,7 @@ class SpendingServiceTest {
                         .isExcluded(false)
                         .build()
         );
-        when(spendingRepository.selectMonthlySpendings(eq(userId), any(LocalDate.class))).thenReturn(mockMonthlySpendings);
+        when(spendingRepository.selectMonthlySpending(eq(userId), any(LocalDate.class))).thenReturn(mockMonthlySpendings);
 
         List<MonthlyBudgetDto> mockMonthlyBudgets = Arrays.asList(
                 new MonthlyBudgetDto(1L, "식비", new BigDecimal("1000000")),
@@ -123,7 +124,7 @@ class SpendingServiceTest {
                 new MonthlyBudgetDto(2L, "간식비", BigDecimal.valueOf(20000))
         );
 
-        when(spendingRepository.selectMonthlySpendingsExcludingToday(userId, today)).thenReturn(mockSpendings);
+        when(spendingRepository.selectMonthlySpendingExcludingToday(userId, today)).thenReturn(mockSpendings);
         when(spendingRepository.selectAllSpendingToday(userId, today)).thenReturn(mockTodaySpendings);
         when(budgetRepository.selectMonthlyBudgets(userId, today)).thenReturn(mockBudgets);
 
@@ -136,6 +137,31 @@ class SpendingServiceTest {
         assertEquals(2, todayRecommendation.categoryRecommendationResponses().size(), "카테고리 추천 개수는 2개여야 합니다.");
         assertEquals(MoneyCatConstants.UNDER_BUDGET_MESSAGE, todayRecommendation.message(), "예상된 메시지와 일치해야 합니다.");
         assertEquals(minimalAmount, todayRecommendation.categoryRecommendationResponses().get(1).amount(), "간식비 추천 금액이 최소 금액이어야 합니다.");
+    }
+
+    @Test
+    void 카테고리별_소비율_비교_테스트() {
+        List<MonthlyBudgetDto> lastMonthSpendings = List.of(
+                new MonthlyBudgetDto(1L, "식비", BigDecimal.valueOf(100000)),
+                new MonthlyBudgetDto(2L, "교통비", BigDecimal.valueOf(50000))
+        );
+
+        List<MonthlyBudgetDto> currentMonthSpendings = List.of(
+                new MonthlyBudgetDto(1L, "식비", BigDecimal.valueOf(120000)),
+                new MonthlyBudgetDto(2L, "교통비", BigDecimal.valueOf(40000))
+        );
+
+        // When
+        List<CategorySpendingRateResponse> categoryRates = spendingService.getCategoryRates(lastMonthSpendings, currentMonthSpendings);
+
+        // Then
+        assertEquals(2, categoryRates.size(), "카테고리의 개수는 2입니다.");
+
+        assertEquals("식비", categoryRates.get(0).categoryName());
+        assertTrue(categoryRates.get(0).rate().compareTo(BigDecimal.valueOf(120.00)) == 0, "식비는 120% 입니다.");
+
+        assertEquals("교통비", categoryRates.get(1).categoryName());
+        assertTrue(categoryRates.get(1).rate().compareTo(BigDecimal.valueOf(80.00)) == 0, "교통비는 80% 입니다.");
     }
 
 }

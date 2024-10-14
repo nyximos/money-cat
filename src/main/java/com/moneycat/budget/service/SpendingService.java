@@ -11,10 +11,12 @@ import com.moneycat.budget.persistence.repository.UserRepository;
 import com.moneycat.budget.persistence.repository.entity.CategoryEntity;
 import com.moneycat.budget.persistence.repository.entity.SpendingEntity;
 import com.moneycat.budget.service.delegator.validator.AccessPermissionValidator;
+import com.moneycat.budget.service.dto.BudgetSpendingDto;
 import com.moneycat.budget.service.dto.MonthlyBudgetDto;
 import com.moneycat.core.exception.CategoryNotFoundException;
 import com.moneycat.core.exception.SpendingNotFoundException;
 import com.moneycat.core.exception.UserNotFoundException;
+import com.moneycat.core.util.SpendingUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,6 +29,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.moneycat.core.util.SpendingUtils.chooseRecommendationMessage;
+import static java.time.DayOfWeek.*;
 
 @Service
 @RequiredArgsConstructor
@@ -80,7 +83,7 @@ public class SpendingService {
 
     @Transactional(readOnly = true)
     public SummaryResponse getTodaySummary(Long userId, LocalDate today) {
-        List<SpendingEntity> monthlySpendings = spendingRepository.selectMonthlySpendings(userId, today);
+        List<SpendingEntity> monthlySpendings = spendingRepository.selectMonthlySpending(userId, today);
         List<MonthlyBudgetDto> monthlyBudgets = budgetRepository.selectMonthlyBudgets(userId, today);
 
         Map<Long, BigDecimal> categorySpendingMap = monthlySpendings.stream()
@@ -119,7 +122,7 @@ public class SpendingService {
     @Transactional(readOnly = true)
     public RecommendationResponse getTodayRecommendation(Long id, LocalDate today, BigDecimal minimalAmount) {
         int remainingDays = today.lengthOfMonth() - today.getDayOfMonth() + 1;
-        List<SpendingEntity> spendings = spendingRepository.selectMonthlySpendingsExcludingToday(id, today);
+        List<SpendingEntity> spendings = spendingRepository.selectMonthlySpendingExcludingToday(id, today);
         List<MonthlyBudgetDto> budgets = budgetRepository.selectMonthlyBudgets(id, today);
         BigDecimal totalSpent = spendings.stream().map(SpendingEntity::getAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
         Map<Long, BigDecimal> categorySpendingMap = spendings.stream()
@@ -158,4 +161,63 @@ public class SpendingService {
         return new RecommendationResponse(totalAmount, categoryRecommendations, message);
     }
 
+    @Transactional(readOnly = true)
+    public StatisticsResponse getStatistics(Long userId, LocalDate now) {
+        BigDecimal totalSpentThisMonth = spendingRepository.getTotalSpent(userId, now.withDayOfMonth(1), now);
+        BigDecimal totalSpentLastMonth = spendingRepository.getTotalSpent(userId, now.minusMonths(1).withDayOfMonth(1), now.minusMonths(1));
+        BigDecimal totalSpendingRate = SpendingUtils.calculateRate(totalSpentThisMonth, totalSpentLastMonth);
+
+        List<MonthlyBudgetDto> lastMonthTotalSpending = spendingRepository.selectSpendingForPeriod(userId, now.minusMonths(1).withDayOfMonth(1), now.minusMonths(1));
+        List<MonthlyBudgetDto> currentMonthTotalSpending = spendingRepository.selectSpendingForPeriod(userId, now.withDayOfMonth(1), now);
+        List<CategorySpendingRateResponse> categorySpendingRate = getCategoryRates(lastMonthTotalSpending, currentMonthTotalSpending);
+
+        BigDecimal totalSpentThisWeek = spendingRepository.getTotalSpent(userId, now.with(MONDAY), now.with(SUNDAY));
+        BigDecimal totalSpentLastWeek = spendingRepository.getTotalSpent(userId, now.minusWeeks(1).with(MONDAY), now.minusWeeks(1).with(SUNDAY));
+        BigDecimal weekdaySpendingRate = SpendingUtils.calculateRate(totalSpentLastWeek, totalSpentThisWeek);
+
+        BigDecimal userBudgets = budgetRepository.getBudgets(userId, now);
+        BigDecimal userSpendingPercentage = divide(totalSpentThisMonth, userBudgets).multiply(BigDecimal.valueOf(100));
+        BigDecimal averageSpendingRate = calculateAverageSpendingRate(spendingRepository.selectOtherUsersBudgetSpending(userId, now));
+        BigDecimal userComparisonRate = divide(userSpendingPercentage, averageSpendingRate).multiply(BigDecimal.valueOf(100));
+
+        return new StatisticsResponse(totalSpendingRate, categorySpendingRate, weekdaySpendingRate, userComparisonRate);
+    }
+
+    public BigDecimal divide(BigDecimal numerator, BigDecimal denominator) {
+        if (denominator.compareTo(BigDecimal.ZERO) == 0) {
+            return BigDecimal.ZERO;
+        }
+        return numerator.divide(denominator, 2, RoundingMode.HALF_UP);
+    }
+
+    public List<CategorySpendingRateResponse> getCategoryRates(List<MonthlyBudgetDto> lastMonthSpendings, List<MonthlyBudgetDto> currentMonthSpendings) {
+        Map<Long, BigDecimal> lastMonthSpendingMap = lastMonthSpendings.stream().collect(Collectors.toMap(MonthlyBudgetDto::getCategoryId, MonthlyBudgetDto::getAmount));
+        return currentMonthSpendings.stream()
+                .map(spending -> {
+                    BigDecimal lastMonthAmount = lastMonthSpendingMap.getOrDefault(spending.getCategoryId(), BigDecimal.ZERO);
+                    BigDecimal comparisonPercentage = SpendingUtils.calculateRate(lastMonthAmount, spending.getAmount());
+                    return new CategorySpendingRateResponse(spending.getCategoryId(), spending.getCategoryName(), comparisonPercentage);
+                })
+                .collect(Collectors.toList());
+    }
+
+    private BigDecimal calculateAverageSpendingRate(List<BudgetSpendingDto> budgetSpendings) {
+        BigDecimal totalSpendingRate = BigDecimal.ZERO;
+        int userCount = 0;
+
+        for (BudgetSpendingDto budgetSpending : budgetSpendings) {
+            if (budgetSpending.getBudget().compareTo(BigDecimal.ZERO) > 0) {
+                BigDecimal spendingRate = budgetSpending.getSpending()
+                        .divide(budgetSpending.getBudget(), 2, RoundingMode.HALF_UP)
+                        .multiply(BigDecimal.valueOf(100));
+                totalSpendingRate = totalSpendingRate.add(spendingRate);
+                userCount++;
+            }
+        }
+
+        if (userCount == 0) {
+            return totalSpendingRate;
+        }
+        return totalSpendingRate.divide(BigDecimal.valueOf(userCount), 2, RoundingMode.HALF_UP);
+    }
 }
