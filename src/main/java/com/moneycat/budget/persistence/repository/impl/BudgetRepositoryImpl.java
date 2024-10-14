@@ -11,6 +11,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -47,9 +48,20 @@ public class BudgetRepositoryImpl implements BudgetRepositoryCustom {
                 ))
                 .from(budgetEntity)
                 .join(categoryEntity).on(budgetEntity.categoryId.eq(categoryEntity.id))
-                .where(QBudgetEntity.budgetEntity.userId.eq(userId)
-                        .and(QBudgetEntity.budgetEntity.startDate.year().eq(today.getYear()))
-                        .and(QBudgetEntity.budgetEntity.startDate.month().eq(today.getMonthValue())))
+                .where(budgetEntity.userId.eq(userId)
+                        .and(budgetEntity.startDate.year().eq(today.getYear()))
+                        .and(budgetEntity.startDate.month().eq(today.getMonthValue())))
                 .fetch();
+    }
+
+    @Override
+    public BigDecimal getBudgets(Long userId, LocalDate today) {
+        return queryFactory
+                .select(budgetEntity.amount.sum())
+                .from(budgetEntity)
+                .where(budgetEntity.userId.eq(userId)
+                        .and(budgetEntity.startDate.year().eq(today.getYear()))
+                        .and(budgetEntity.startDate.month().eq(today.getMonthValue())))
+                .fetchOne();
     }
 }

@@ -77,5 +77,10 @@ public class SpendingController {
         return new ResultResponse<>(spendingService.getTodayRecommendation(tokenUser.id(), LocalDate.now(), minimalAmount));
     }
 
+    @GetMapping("/statistics")
+    @Operation(summary = "지출 통계", description = "지난달 대비, 지난 요일 대비, 다른 유저 대비 소비율을 조회합니다.")
+    public ResultResponse<StatisticsResponse> getStatistics(@RequestAttribute(value = TOKEN_USER) TokenUser tokenUser) {
+        return new ResultResponse<>(spendingService.getStatistics(tokenUser.id(), LocalDate.now()));
+    }
 
 }
