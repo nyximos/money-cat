@@ -127,7 +127,7 @@ cd money-cat
 [DB Diagram](https://www.erdcloud.com/d/hfokAG4Leofkj9vfs)
 <br>
 
-<img width="817" alt="image" src="https://github.com/user-attachments/assets/e6fd0ed5-5ef6-4709-a98f-32ae2f4426a9">
+<img width="1030" alt="image" src="https://github.com/user-attachments/assets/8b06715e-1606-4b8f-8e48-5e94cee63a14">
 <br>
 <br>
 
