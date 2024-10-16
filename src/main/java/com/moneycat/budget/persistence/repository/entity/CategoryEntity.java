@@ -9,7 +9,7 @@ import lombok.*;
 @AllArgsConstructor
 @Table(name = "category")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class CategoryEntity extends BaseEntity {
+public class CategoryEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
