@@ -43,19 +43,19 @@ Money-cat은 사용자들의 예산 관리와 지출 추적을 전문으로 하�
 
 | 번호 | Method | URL | **Authorization** | Description |
 | --- | --- | --- | --- | --- |
-| 1 | POST | localhost:8086/apis/users |  | 사용자 회원가입 |
-| 2 | POST | localhost:8086/apis/users/login |  | 사용자 로그인 및 토큰 발급 |
-| 3 | GET | localhost:8086/apis/categories | ✔️ | 모든 카테고리 조회 |
-| 4 | POST | localhost:8086/apis/budget | ✔️ | 예산 설정 |
-| 5 | POST | localhost:8086/apis/budget/recommend |  | 예산 추천 |
-| 6 | POST | localhost:8086/apis/spending | ✔️ | 지출 생성 |
-| 7 | PUT | localhost:8086/apis/spending/{id} | ✔️ | 지출 수정 |
-| 8 | DELETE | localhost:8086/apis/spending/{id} | ✔️ | 지출 삭제 |
-| 9 | GET | localhost:8086/apis/spending/{id} | ✔️ | 지출 상세 조회 |
-| 10 | GET | localhost:8086/apis/spending | ✔️ | 지출 목록 조회 |
-| 11 | GET | localhost:8086/apis/spending/summary/today | ✔️ | 오늘 지출 요약 조회 |
-| 12 | GET | localhost:8086/apis/spending/summary/today | ✔️ | 오늘 지출 추천 조회 |
-| 13 | GET | localhost:8086/apis/spending/statistics | ✔️ | 지출 통계 조회 |
+| 1 | POST | /apis/users |  | 사용자 회원가입 |
+| 2 | POST | /apis/users/login |  | 사용자 로그인 및 토큰 발급 |
+| 3 | GET | /apis/categories | ✔️ | 모든 카테고리 조회 |
+| 4 | POST | /apis/budget | ✔️ | 예산 설정 |
+| 5 | POST | /apis/budget/recommend |  | 예산 추천 |
+| 6 | POST | /apis/spending | ✔️ | 지출 생성 |
+| 7 | PUT | /apis/spending/{id} | ✔️ | 지출 수정 |
+| 8 | DELETE | /apis/spending/{id} | ✔️ | 지출 삭제 |
+| 9 | GET | /apis/spending/{id} | ✔️ | 지출 상세 조회 |
+| 10 | GET | /apis/spending | ✔️ | 지출 목록 조회 |
+| 11 | GET | /apis/spending/summary/today | ✔️ | 오늘 지출 요약 조회 |
+| 12 | GET | /apis/spending/summary/today | ✔️ | 오늘 지출 추천 조회 |
+| 13 | GET | /apis/spending/statistics | ✔️ | 지출 통계 조회 |
 <br>
 
 # 3. 브랜치 전략
