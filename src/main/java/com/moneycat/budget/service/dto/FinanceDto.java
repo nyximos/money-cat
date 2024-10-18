@@ -7,7 +7,7 @@ import java.math.BigDecimal;
 
 @Getter
 @AllArgsConstructor
-public class MonthlyBudgetDto {
+public class FinanceDto {
     private Long categoryId;
     private String categoryName;
     private BigDecimal amount;

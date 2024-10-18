@@ -1,11 +1,8 @@
 package com.moneycat.budget.persistence.repository.impl;
 
 import com.moneycat.budget.persistence.repository.custom.BudgetRepositoryCustom;
-import com.moneycat.budget.persistence.repository.entity.BudgetEntity;
-import com.moneycat.budget.persistence.repository.entity.QBudgetEntity;
-import com.moneycat.budget.persistence.repository.entity.QCategoryEntity;
 import com.moneycat.budget.service.BudgetCategoryPercentageDto;
-import com.moneycat.budget.service.dto.MonthlyBudgetDto;
+import com.moneycat.budget.service.dto.FinanceDto;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -41,10 +38,10 @@ public class BudgetRepositoryImpl implements BudgetRepositoryCustom {
     }
 
     @Override
-    public List<MonthlyBudgetDto> selectMonthlyBudgets(Long userId, LocalDate today) {
+    public List<FinanceDto> selectMonthlyBudgets(Long userId, LocalDate today) {
         return queryFactory
                 .select(Projections.constructor(
-                        MonthlyBudgetDto.class,
+                        FinanceDto.class,
                         budgetEntity.categoryId,
                         categoryEntity.name,
                         budgetEntity.amount

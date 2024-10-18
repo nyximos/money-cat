@@ -7,7 +7,7 @@ import com.moneycat.budget.controller.model.response.SummaryResponse;
 import com.moneycat.budget.persistence.repository.BudgetRepository;
 import com.moneycat.budget.persistence.repository.SpendingRepository;
 import com.moneycat.budget.persistence.repository.entity.SpendingEntity;
-import com.moneycat.budget.service.dto.MonthlyBudgetDto;
+import com.moneycat.budget.service.dto.FinanceDto;
 import com.moneycat.core.constant.MoneyCatConstants;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -65,10 +65,10 @@ class SpendingServiceTest {
         );
         when(spendingRepository.selectMonthlySpending(eq(userId), any(LocalDate.class))).thenReturn(mockMonthlySpendings);
 
-        List<MonthlyBudgetDto> mockMonthlyBudgets = Arrays.asList(
-                new MonthlyBudgetDto(1L, "식비", new BigDecimal("1000000")),
-                new MonthlyBudgetDto(2L, "교통비", new BigDecimal("500000")),
-                new MonthlyBudgetDto(3L, "간식비", new BigDecimal("10000"))
+        List<FinanceDto> mockMonthlyBudgets = Arrays.asList(
+                new FinanceDto(1L, "식비", new BigDecimal("1000000")),
+                new FinanceDto(2L, "교통비", new BigDecimal("500000")),
+                new FinanceDto(3L, "간식비", new BigDecimal("10000"))
         );
         when(budgetRepository.selectMonthlyBudgets(eq(userId), any(LocalDate.class))).thenReturn(mockMonthlyBudgets);
 
@@ -119,9 +119,9 @@ class SpendingServiceTest {
                 new SpendingEntity(1L, userId, 1L, BigDecimal.valueOf(5000), today.minusDays(1), "김밥", false)
         );
 
-        List<MonthlyBudgetDto> mockBudgets = List.of(
-                new MonthlyBudgetDto(1L, "식비", BigDecimal.valueOf(300000)),
-                new MonthlyBudgetDto(2L, "간식비", BigDecimal.valueOf(20000))
+        List<FinanceDto> mockBudgets = List.of(
+                new FinanceDto(1L, "식비", BigDecimal.valueOf(300000)),
+                new FinanceDto(2L, "간식비", BigDecimal.valueOf(20000))
         );
 
         when(spendingRepository.selectMonthlySpendingExcludingToday(userId, today)).thenReturn(mockSpendings);
@@ -141,14 +141,14 @@ class SpendingServiceTest {
 
     @Test
     void 카테고리별_소비율_비교_테스트() {
-        List<MonthlyBudgetDto> lastMonthSpendings = List.of(
-                new MonthlyBudgetDto(1L, "식비", BigDecimal.valueOf(100000)),
-                new MonthlyBudgetDto(2L, "교통비", BigDecimal.valueOf(50000))
+        List<FinanceDto> lastMonthSpendings = List.of(
+                new FinanceDto(1L, "식비", BigDecimal.valueOf(100000)),
+                new FinanceDto(2L, "교통비", BigDecimal.valueOf(50000))
         );
 
-        List<MonthlyBudgetDto> currentMonthSpendings = List.of(
-                new MonthlyBudgetDto(1L, "식비", BigDecimal.valueOf(120000)),
-                new MonthlyBudgetDto(2L, "교통비", BigDecimal.valueOf(40000))
+        List<FinanceDto> currentMonthSpendings = List.of(
+                new FinanceDto(1L, "식비", BigDecimal.valueOf(120000)),
+                new FinanceDto(2L, "교통비", BigDecimal.valueOf(40000))
         );
 
         // When
