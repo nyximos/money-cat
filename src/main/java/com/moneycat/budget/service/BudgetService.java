@@ -38,11 +38,11 @@ public class BudgetService {
     }
 
     @Transactional(readOnly = true)
-    public List<BudgetRecommendationResponse> recommendBudget(BudgetRecommendationRequest recommendationRequest) {
+    public List<BudgetRecommendationResponse> recommendBudget(Long userId, BudgetRecommendationRequest recommendationRequest) {
         LocalDate startDate = recommendationRequest.startDate().withDayOfMonth(1);
         LocalDate endDate = recommendationRequest.startDate().plusMonths(1).withDayOfMonth(1).minusDays(1);
 
-        List<BudgetCategoryPercentageDto> userBudgets = budgetRepository.findUserBudgetByMonth(startDate, endDate);
+        List<BudgetCategoryPercentageDto> userBudgets = budgetRepository.findOtherUsersBudgetByMonth(userId, startDate, endDate);
         Map<Long, BigDecimal> categoryPercentageMap = calculateAverageCategoryPercentage(userBudgets);
 
         return categoryPercentageMap.entrySet().stream()
@@ -55,33 +55,38 @@ public class BudgetService {
                 .collect(Collectors.toList());
     }
 
-    private Map<Long, BigDecimal> calculateAverageCategoryPercentage(List<BudgetCategoryPercentageDto> userBudgets) {
-        Map<Long, BigDecimal> totalAmountByCategory = getLongBigDecimalMap(userBudgets);
-
-        BigDecimal grandTotal = totalAmountByCategory.values().stream().reduce(BigDecimal.ZERO, BigDecimal::add);
-
-        // 카테고리별 비율 계산
-        Map<Long, BigDecimal> categoryPercentages = new HashMap<>();
-        for (Map.Entry<Long, BigDecimal> entry : totalAmountByCategory.entrySet()) {
-            Long categoryId = entry.getKey();
-            BigDecimal totalAmount = entry.getValue();
-            BigDecimal categoryPercentage = totalAmount.divide(grandTotal, 4, RoundingMode.HALF_UP);
-            categoryPercentages.put(categoryId, categoryPercentage);
-        }
-
-        return categoryPercentages;
-    }
-
-    private static Map<Long, BigDecimal> getLongBigDecimalMap(List<BudgetCategoryPercentageDto> userBudgets) {
-        Map<Long, BigDecimal> totalAmountByCategory = new HashMap<>();
+    private Map<Long, BigDecimal> calculateAverageCategoryPercentage(List<BudgetCategoryPercentageDto> budgets) {
+        Map<Long, BigDecimal> totalPercentageByCategory = new HashMap<>();
         Map<Long, Long> userCountByCategory = new HashMap<>();
 
-        // 각 카테고리별 총액/유저 수 계산
-        for (BudgetCategoryPercentageDto dto : userBudgets) {
-            totalAmountByCategory.put(dto.getCategoryId(), totalAmountByCategory.getOrDefault(dto.getCategoryId(), BigDecimal.ZERO).add(dto.getAmount()));
-            userCountByCategory.put(dto.getCategoryId(), userCountByCategory.getOrDefault(dto.getCategoryId(), 0L) + 1);
+        Map<Long, BigDecimal> userTotalBudgetMap = budgets.stream()
+                .collect(Collectors.groupingBy(
+                        BudgetCategoryPercentageDto::getUserId,
+                        Collectors.reducing(BigDecimal.ZERO, BudgetCategoryPercentageDto::getAmount, BigDecimal::add)
+                ));
+
+        for (BudgetCategoryPercentageDto budget : budgets) {
+            Long categoryId = budget.getCategoryId();
+            BigDecimal totalAmount = budget.getAmount();
+            BigDecimal userTotal = userTotalBudgetMap.get(budget.getUserId());
+
+            BigDecimal categoryPercentage = totalAmount.divide(userTotal, 4, RoundingMode.HALF_UP);
+
+            totalPercentageByCategory.put(categoryId, totalPercentageByCategory.getOrDefault(categoryId, BigDecimal.ZERO).add(categoryPercentage));
+            userCountByCategory.put(categoryId, userCountByCategory.getOrDefault(categoryId, 0L) + 1);
         }
-        return totalAmountByCategory;
+
+        Map<Long, BigDecimal> categoryPercentages = new HashMap<>();
+
+        for (Map.Entry<Long, BigDecimal> entry : totalPercentageByCategory.entrySet()) {
+            Long categoryId = entry.getKey();
+            BigDecimal totalPercentage = entry.getValue();
+            Long userCount = userCountByCategory.get(categoryId);
+
+            BigDecimal averagePercentage = totalPercentage.divide(BigDecimal.valueOf(userCount), 4, RoundingMode.HALF_UP);
+            categoryPercentages.put(categoryId, averagePercentage);
+        }
+        return categoryPercentages;
     }
 
 }

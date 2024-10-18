@@ -47,9 +47,9 @@ class BudgetServiceTest {
                 new BudgetCategoryPercentageDto(2L, 3L, new BigDecimal("150000"))
         );
 
-        when(budgetRepository.findUserBudgetByMonth(any(LocalDate.class), any(LocalDate.class))).thenReturn(mockUserBudgets);
+        when(budgetRepository.findOtherUsersBudgetByMonth(any(Long.class), any(LocalDate.class), any(LocalDate.class))).thenReturn(mockUserBudgets);
 
-        List<BudgetRecommendationResponse> response = budgetService.recommendBudget(recommendationRequest);
+        List<BudgetRecommendationResponse> response = budgetService.recommendBudget(1L, recommendationRequest);
 
         response.forEach(r -> System.out.println("카테고리 ID: " + r.id() + ", 금액: " + r.amount()));
 
@@ -57,9 +57,9 @@ class BudgetServiceTest {
         assertThat(response).extracting("id").containsExactlyInAnyOrder(1L, 2L, 3L);
         assertThat(response).extracting("amount")
                 .containsExactlyInAnyOrder(
-                        new BigDecimal("485700.00"),
-                        new BigDecimal("371400.00"),
-                        new BigDecimal("142900.00")
+                        new BigDecimal("486900.00"),
+                        new BigDecimal("371700.00"),
+                        new BigDecimal("141500.00")
                 );
     }
 

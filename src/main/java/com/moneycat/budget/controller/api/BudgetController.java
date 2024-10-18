@@ -34,8 +34,9 @@ public class BudgetController {
 
     @PostMapping("/recommend")
     @Operation(summary = "예산 추천", description = "예산을 추천합니다.")
-    public ResultResponse<List<BudgetRecommendationResponse>> recommendBudget(@RequestBody BudgetRecommendationRequest recommendationRequest) {
-        return new ResultResponse<>(budgetService.recommendBudget(recommendationRequest));
+    public ResultResponse<List<BudgetRecommendationResponse>> recommendBudget(@RequestAttribute(value = TOKEN_USER) TokenUser tokenUser,
+                                                                              @RequestBody BudgetRecommendationRequest recommendationRequest) {
+        return new ResultResponse<>(budgetService.recommendBudget(tokenUser.id(), recommendationRequest));
     }
 
 }

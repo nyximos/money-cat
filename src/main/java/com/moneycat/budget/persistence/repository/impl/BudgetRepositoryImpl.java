@@ -25,7 +25,7 @@ public class BudgetRepositoryImpl implements BudgetRepositoryCustom {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public List<BudgetCategoryPercentageDto> findUserBudgetByMonth(LocalDate startDate, LocalDate endDate) {
+    public List<BudgetCategoryPercentageDto> findOtherUsersBudgetByMonth(Long excludedUserId, LocalDate startDate, LocalDate endDate) {
         return queryFactory
                 .select(Projections.constructor(BudgetCategoryPercentageDto.class
                         , budgetEntity.userId
@@ -33,7 +33,10 @@ public class BudgetRepositoryImpl implements BudgetRepositoryCustom {
                         , budgetEntity.amount
                 ))
                 .from(budgetEntity)
-                .where(budgetEntity.startDate.goe(startDate).and(budgetEntity.endDate.loe(endDate)))
+                .where(budgetEntity.startDate.goe(startDate)
+                        .and(budgetEntity.endDate.loe(endDate))
+                        .and(budgetEntity.amount.ne(BigDecimal.ZERO))
+                        .and(budgetEntity.userId.ne(excludedUserId)))
                 .fetch();
     }
 
