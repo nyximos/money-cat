@@ -12,7 +12,7 @@ import com.moneycat.budget.persistence.repository.entity.CategoryEntity;
 import com.moneycat.budget.persistence.repository.entity.SpendingEntity;
 import com.moneycat.budget.service.delegator.validator.AccessPermissionValidator;
 import com.moneycat.budget.service.dto.BudgetSpendingDto;
-import com.moneycat.budget.service.dto.MonthlyBudgetDto;
+import com.moneycat.budget.service.dto.FinanceDto;
 import com.moneycat.core.exception.CategoryNotFoundException;
 import com.moneycat.core.exception.SpendingNotFoundException;
 import com.moneycat.core.exception.UserNotFoundException;
@@ -84,7 +84,7 @@ public class SpendingService {
     @Transactional(readOnly = true)
     public SummaryResponse getTodaySummary(Long userId, LocalDate today) {
         List<SpendingEntity> monthlySpendings = spendingRepository.selectMonthlySpending(userId, today);
-        List<MonthlyBudgetDto> monthlyBudgets = budgetRepository.selectMonthlyBudgets(userId, today);
+        List<FinanceDto> monthlyBudgets = budgetRepository.selectMonthlyBudgets(userId, today);
 
         Map<Long, BigDecimal> categorySpendingMap = monthlySpendings.stream()
                 .collect(Collectors.groupingBy(
@@ -123,7 +123,7 @@ public class SpendingService {
     public RecommendationResponse getTodayRecommendation(Long id, LocalDate today, BigDecimal minimalAmount) {
         int remainingDays = today.lengthOfMonth() - today.getDayOfMonth() + 1;
         List<SpendingEntity> spendings = spendingRepository.selectMonthlySpendingExcludingToday(id, today);
-        List<MonthlyBudgetDto> budgets = budgetRepository.selectMonthlyBudgets(id, today);
+        List<FinanceDto> budgets = budgetRepository.selectMonthlyBudgets(id, today);
         BigDecimal totalSpent = spendings.stream().map(SpendingEntity::getAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
         Map<Long, BigDecimal> categorySpendingMap = spendings.stream()
                 .collect(Collectors.groupingBy(
@@ -151,7 +151,7 @@ public class SpendingService {
                 })
                 .collect(Collectors.toList());
 
-        BigDecimal totalBudget = budgets.stream().map(MonthlyBudgetDto::getAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal totalBudget = budgets.stream().map(FinanceDto::getAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
         BigDecimal totalAmount = categoryRecommendations.stream()
                 .map(CategoryRecommendationResponse::amount)
                 .reduce(BigDecimal.ZERO, BigDecimal::add)
@@ -167,8 +167,8 @@ public class SpendingService {
         BigDecimal totalSpentLastMonth = spendingRepository.getTotalSpent(userId, now.minusMonths(1).withDayOfMonth(1), now.minusMonths(1));
         BigDecimal totalSpendingRate = SpendingUtils.calculateRate(totalSpentThisMonth, totalSpentLastMonth);
 
-        List<MonthlyBudgetDto> lastMonthTotalSpending = spendingRepository.selectSpendingForPeriod(userId, now.minusMonths(1).withDayOfMonth(1), now.minusMonths(1));
-        List<MonthlyBudgetDto> currentMonthTotalSpending = spendingRepository.selectSpendingForPeriod(userId, now.withDayOfMonth(1), now);
+        List<FinanceDto> lastMonthTotalSpending = spendingRepository.selectSpendingForPeriod(userId, now.minusMonths(1).withDayOfMonth(1), now.minusMonths(1));
+        List<FinanceDto> currentMonthTotalSpending = spendingRepository.selectSpendingForPeriod(userId, now.withDayOfMonth(1), now);
         List<CategorySpendingRateResponse> categorySpendingRate = getCategoryRates(lastMonthTotalSpending, currentMonthTotalSpending);
 
         BigDecimal totalSpentThisWeek = spendingRepository.getTotalSpent(userId, now.with(MONDAY), now.with(SUNDAY));
@@ -190,8 +190,8 @@ public class SpendingService {
         return numerator.divide(denominator, 2, RoundingMode.HALF_UP);
     }
 
-    public List<CategorySpendingRateResponse> getCategoryRates(List<MonthlyBudgetDto> lastMonthSpendings, List<MonthlyBudgetDto> currentMonthSpendings) {
-        Map<Long, BigDecimal> lastMonthSpendingMap = lastMonthSpendings.stream().collect(Collectors.toMap(MonthlyBudgetDto::getCategoryId, MonthlyBudgetDto::getAmount));
+    public List<CategorySpendingRateResponse> getCategoryRates(List<FinanceDto> lastMonthSpendings, List<FinanceDto> currentMonthSpendings) {
+        Map<Long, BigDecimal> lastMonthSpendingMap = lastMonthSpendings.stream().collect(Collectors.toMap(FinanceDto::getCategoryId, FinanceDto::getAmount));
         return currentMonthSpendings.stream()
                 .map(spending -> {
                     BigDecimal lastMonthAmount = lastMonthSpendingMap.getOrDefault(spending.getCategoryId(), BigDecimal.ZERO);

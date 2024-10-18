@@ -4,7 +4,7 @@ import com.moneycat.budget.controller.model.request.SpendingSearchRequest;
 import com.moneycat.budget.controller.model.response.SpendingDetailResponse;
 import com.moneycat.budget.persistence.repository.custom.SpendingRepositoryCustom;
 import com.moneycat.budget.persistence.repository.entity.SpendingEntity;
-import com.moneycat.budget.service.dto.MonthlyBudgetDto;
+import com.moneycat.budget.service.dto.FinanceDto;
 import com.moneycat.budget.service.dto.BudgetSpendingDto;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -79,9 +79,9 @@ public class SpendingRepositoryImpl implements SpendingRepositoryCustom {
     }
 
     @Override
-    public List<MonthlyBudgetDto> selectSpendingForPeriod(Long userId, LocalDate startDate, LocalDate endDate) {
+    public List<FinanceDto> selectSpendingForPeriod(Long userId, LocalDate startDate, LocalDate endDate) {
         return queryFactory
-                .select(Projections.constructor(MonthlyBudgetDto.class
+                .select(Projections.constructor(FinanceDto.class
                         ,spendingEntity.categoryId
                         ,categoryEntity.name
                         ,spendingEntity.amount.sum()
