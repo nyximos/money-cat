@@ -47,7 +47,7 @@ Money-cat은 사용자들의 예산 관리와 지출 추적을 전문으로 하�
 | 2 | POST | /apis/users/login |  | 사용자 로그인 및 토큰 발급 |
 | 3 | GET | /apis/categories | ✔️ | 모든 카테고리 조회 |
 | 4 | POST | /apis/budget | ✔️ | 예산 설정 |
-| 5 | POST | /apis/budget/recommend |  | 예산 추천 |
+| 5 | POST | /apis/budget/recommend | ✔️ | 예산 추천 |
 | 6 | POST | /apis/spending | ✔️ | 지출 생성 |
 | 7 | PUT | /apis/spending/{id} | ✔️ | 지출 수정 |
 | 8 | DELETE | /apis/spending/{id} | ✔️ | 지출 삭제 |
