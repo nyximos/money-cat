@@ -38,11 +38,11 @@ public class BudgetService {
     }
 
     @Transactional(readOnly = true)
-    public List<BudgetRecommendationResponse> recommendBudget(BudgetRecommendationRequest recommendationRequest) {
+    public List<BudgetRecommendationResponse> recommendBudget(Long userId, BudgetRecommendationRequest recommendationRequest) {
         LocalDate startDate = recommendationRequest.startDate().withDayOfMonth(1);
         LocalDate endDate = recommendationRequest.startDate().plusMonths(1).withDayOfMonth(1).minusDays(1);
 
-        List<BudgetCategoryPercentageDto> userBudgets = budgetRepository.findUserBudgetByMonth(startDate, endDate);
+        List<BudgetCategoryPercentageDto> userBudgets = budgetRepository.findOtherUsersBudgetByMonth(userId, startDate, endDate);
         Map<Long, BigDecimal> categoryPercentageMap = calculateAverageCategoryPercentage(userBudgets);
 
         return categoryPercentageMap.entrySet().stream()
